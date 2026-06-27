@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Instant;
 import java.util.regex.Matcher;
@@ -41,6 +42,10 @@ class Wat2Wasm {
 
     private IOException error;
 
+    private static String      wabtReleasesLatest;
+
+    private static IOException exception;
+
     /**
      * Check if there is a new version of the script engine
      * 
@@ -54,7 +59,7 @@ class Wat2Wasm {
         String fileName;
         final String os = System.getProperty( "os.name", "" ).toLowerCase();
         if( os.contains( "windows" ) ) {
-            fileName = "windows.tar.gz";
+            fileName = "windows-x64.tar.gz";
         } else if( os.contains( "mac" ) ) {
             fileName = "macos.tar.gz";
         } else if( os.contains( "linux" ) ) {
@@ -63,32 +68,46 @@ class Wat2Wasm {
             throw new IllegalStateException( "Unknown OS: " + os );
         }
 
-        URL url = new URL( "https://api.github.com/repos/WebAssembly/wabt/releases/latest" );
-        HttpURLConnection conn = (HttpURLConnection)url.openConnection();
-        InputStream input = conn.getInputStream();
-        String data = WasmRule.readStream( input, true );
+        if( exception != null ) {
+            throw exception; // use the cached response to prevent exceeding the rate limit
+        }
+        long lastModfied;
+        try {
+            String data;
+            if( wabtReleasesLatest != null ) { // use the cached response to prevent exceeding the rate limit
+                data = wabtReleasesLatest;
+            } else {
+                URL url = new URL( "https://api.github.com/repos/WebAssembly/wabt/releases/latest" );
+                HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+                InputStream input = conn.getInputStream();
+                wabtReleasesLatest = data = WasmRule.readStream( input, true );
+            }
 
-        Pattern pattern = Pattern.compile( "/WebAssembly/wabt/releases/download/[0-9.]*/wabt-[0-9.]*-" + fileName );
-        Matcher matcher = pattern.matcher( data );
-        Assert.assertTrue( data, matcher.find() );
-        String downloadUrl = matcher.group();
-        url = new URL( "https://github.com" + downloadUrl );
-        System.out.println( "\tDownload: " + url );
+            Pattern pattern = Pattern.compile( "/WebAssembly/wabt/releases/download/[0-9.]*/wabt-[0-9.]*-" + fileName );
+            Matcher matcher = pattern.matcher( data );
+            Assert.assertTrue( data, matcher.find() );
+            String downloadUrl = matcher.group();
+            URL url = new URL( "https://github.com" + downloadUrl );
+            System.out.println( "\tDownload: " + url );
 
-        conn = (HttpURLConnection)url.openConnection();
+            HttpURLConnection conn = (HttpURLConnection)url.openConnection();
 //        if( target.exists() ) {
 //            conn.setIfModifiedSince( target.lastModified() );
 //        }
 
-        input = conn.getInputStream();
-        if( conn.getResponseCode() == HttpURLConnection.HTTP_NOT_MODIFIED ) {
-            System.out.println( "\tUP-TO-DATE, use version from " + Instant.ofEpochMilli( target.lastModified() ) );
-            return;
+            InputStream input = conn.getInputStream();
+            if( conn.getResponseCode() == HttpURLConnection.HTTP_NOT_MODIFIED ) {
+                System.out.println( "\tUP-TO-DATE, use version from " + Instant.ofEpochMilli( target.lastModified() ) );
+                return;
+            }
+
+            lastModfied = conn.getLastModified();
+
+            extractStream( input, fileName.endsWith( ".tar.gz" ), target );
+        } catch( IOException ex ) {
+            exception = ex;
+            throw ex;
         }
-
-        long lastModfied = conn.getLastModified();
-
-        extractStream( input, fileName.endsWith( ".tar.gz" ), target );
 
 //        target.setLastModified( lastModfied );
         System.out.println( "\tUse Version from " + Instant.ofEpochMilli( lastModfied ) );
@@ -139,7 +158,7 @@ class Wat2Wasm {
                     download( target );
                     searchExecuteable( target );
                     if( command == null ) {
-                        throw new IOException("Wabt was not download or sved to: " + target );
+                        throw new IOException("Wabt was not download or saved to: " + target );
                     }
                 }
             } catch( IOException ex ) {
