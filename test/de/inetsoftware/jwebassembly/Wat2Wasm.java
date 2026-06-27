@@ -21,7 +21,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Instant;
 import java.util.regex.Matcher;
@@ -44,8 +43,6 @@ class Wat2Wasm {
 
     private static String      wabtReleasesLatest;
 
-    private static IOException exception;
-
     /**
      * Check if there is a new version of the script engine
      * 
@@ -55,59 +52,54 @@ class Wat2Wasm {
      *             if any error occur
      */
     private void download( File target ) throws IOException {
-        //boolean is32 = "32".equals( System.getProperty( "sun.arch.data.model" ) );
         String fileName;
-        final String os = System.getProperty( "os.name", "" ).toLowerCase();
+        final String os = System.getProperty( "os.name", "" );
+        String arch = System.getProperty( "os.arch" );
+        String suffix = "aarch64".equals( arch ) || "ard64".equals( arch ) ? "-arm64.tar.gz " : "-x64.tar.gz";
         if( os.contains( "windows" ) ) {
-            fileName = "windows-x64.tar.gz";
+            fileName = "windows" + suffix;
         } else if( os.contains( "mac" ) ) {
-            fileName = "macos.tar.gz";
+            fileName = "macos" + suffix;
         } else if( os.contains( "linux" ) ) {
-            fileName = "ubuntu.tar.gz";
+            fileName = "linux" + suffix;
         } else {
             throw new IllegalStateException( "Unknown OS: " + os );
         }
 
-        if( exception != null ) {
-            throw exception; // use the cached response to prevent exceeding the rate limit
-        }
         long lastModfied;
-        try {
-            String data;
-            if( wabtReleasesLatest != null ) { // use the cached response to prevent exceeding the rate limit
-                data = wabtReleasesLatest;
-            } else {
-                URL url = new URL( "https://api.github.com/repos/WebAssembly/wabt/releases/latest" );
-                HttpURLConnection conn = (HttpURLConnection)url.openConnection();
-                InputStream input = conn.getInputStream();
-                wabtReleasesLatest = data = WasmRule.readStream( input, true );
-            }
-
-            Pattern pattern = Pattern.compile( "/WebAssembly/wabt/releases/download/[0-9.]*/wabt-[0-9.]*-" + fileName );
-            Matcher matcher = pattern.matcher( data );
-            Assert.assertTrue( data, matcher.find() );
-            String downloadUrl = matcher.group();
-            URL url = new URL( "https://github.com" + downloadUrl );
-            System.out.println( "\tDownload: " + url );
-
+        String data;
+        if( wabtReleasesLatest != null ) { // use the cached response to prevent exceeding the rate limit
+            data = wabtReleasesLatest;
+        } else {
+            URL url = new URL( "https://api.github.com/repos/WebAssembly/wabt/releases/latest" );
             HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+            InputStream input = conn.getInputStream();
+            wabtReleasesLatest = data = WasmRule.readStream( input, true );
+        }
+
+        Pattern pattern = Pattern.compile( "/WebAssembly/wabt/releases/download/[0-9.]*/wabt-[0-9.]*-" + fileName );
+        Matcher matcher = pattern.matcher( data );
+        if( !matcher.find() ) {
+            throw new IOException( fileName + " not found: " + data );
+        }
+        String downloadUrl = matcher.group();
+        URL url = new URL( "https://github.com" + downloadUrl );
+        System.out.println( "\tDownload: " + url );
+
+        HttpURLConnection conn = (HttpURLConnection)url.openConnection();
 //        if( target.exists() ) {
 //            conn.setIfModifiedSince( target.lastModified() );
 //        }
 
-            InputStream input = conn.getInputStream();
-            if( conn.getResponseCode() == HttpURLConnection.HTTP_NOT_MODIFIED ) {
-                System.out.println( "\tUP-TO-DATE, use version from " + Instant.ofEpochMilli( target.lastModified() ) );
-                return;
-            }
-
-            lastModfied = conn.getLastModified();
-
-            extractStream( input, fileName.endsWith( ".tar.gz" ), target );
-        } catch( IOException ex ) {
-            exception = ex;
-            throw ex;
+        InputStream input = conn.getInputStream();
+        if( conn.getResponseCode() == HttpURLConnection.HTTP_NOT_MODIFIED ) {
+            System.out.println( "\tUP-TO-DATE, use version from " + Instant.ofEpochMilli( target.lastModified() ) );
+            return;
         }
+
+        lastModfied = conn.getLastModified();
+
+        extractStream( input, fileName.endsWith( ".tar.gz" ), target );
 
 //        target.setLastModified( lastModfied );
         System.out.println( "\tUse Version from " + Instant.ofEpochMilli( lastModfied ) );
