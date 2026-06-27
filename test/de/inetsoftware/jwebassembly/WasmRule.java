@@ -391,7 +391,11 @@ public class WasmRule extends TemporaryFolder {
             File wat2WasmFile = new File( getRoot(), script.name() + ".wasm" );
             // the wat2wasm tool
             ProcessBuilder processBuilder =
-                            new ProcessBuilder( cmd, watFile.toString(), "-o", wat2WasmFile.toString(), "--debug-names", "--enable-all" );
+                            new ProcessBuilder( cmd, watFile.toString(), "-o", wat2WasmFile.toString(), //
+                                            "--enable-gc", // Enable Garbage collection
+                                            "--enable-exceptions", // Enable Experimental exception handling
+                                            //"--enable-all", produce compiler errors with Node 26.3.1
+                                            "--debug-names" );
             execute( processBuilder );
             assertTrue( wat2WasmFile.isFile() );
 
@@ -733,9 +737,9 @@ public class WasmRule extends TemporaryFolder {
         String command = nodeExecuable();
         // details see with command: node --v8-options
         ProcessBuilder processBuilder = new ProcessBuilder( command, //
-                        "--experimental-wasm-eh", // exception handling
-                        "--experimental-wasm-typed-funcref", //
-                        "--experimental-wasm-gc", //
+//                        "--experimental-wasm-eh", // exception handling
+//                        "--experimental-wasm-typed-funcref", //
+//                        "--experimental-wasm-gc", //
                         nodeScript.getName() );
         if( IS_WINDOWS ) {
             processBuilder.command().add( 0, "cmd" );

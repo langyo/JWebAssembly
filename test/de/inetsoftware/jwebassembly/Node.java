@@ -33,9 +33,9 @@ public class Node {
 
     private String              command;
 
-    private static final String BASE_URL = "https://nodejs.org/download/v8-canary/";
+    private static final String BASE_URL = "https://nodejs.org/download/release/";
 
-    private static final String REVISION = "17.0.0-v8-canary20211019bcdcfc880b";
+    private static final String REVISION = "26.3.1";
 
     /**
      * Check if there is a new version of the script engine
