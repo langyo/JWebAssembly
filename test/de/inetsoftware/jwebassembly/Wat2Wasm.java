@@ -53,7 +53,7 @@ class Wat2Wasm {
      */
     private void download( File target ) throws IOException {
         String fileName;
-        final String os = System.getProperty( "os.name", "" );
+        final String os = System.getProperty( "os.name", "" ).toLowerCase();
         String arch = System.getProperty( "os.arch" );
         String suffix = "aarch64".equals( arch ) || "ard64".equals( arch ) ? "-arm64.tar.gz " : "-x64.tar.gz";
         if( os.contains( "windows" ) ) {
