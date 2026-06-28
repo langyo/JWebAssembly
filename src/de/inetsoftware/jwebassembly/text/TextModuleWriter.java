@@ -230,7 +230,12 @@ public class TextModuleWriter extends ModuleWriter {
                 useTypeClass = true;
                 break;
         }
-        output.append( "(type $" ).append( typeName ).append( " ("  );
+        output.append( "(type $" ).append( typeName ).append( " (sub" );
+        StructType parentType = type.getParent();
+        if( parentType != null ) {
+            output.append( " $" ).append( normalizeName( parentType.getName() ) );
+        }
+        output.append( " (" );
         if( type.getKind() == StructTypeKind.array_native ) {
             output.append( "array (mut " );
             writeTypeName( output, type.getFields().get( 0 ).getType() );
@@ -251,7 +256,7 @@ public class TextModuleWriter extends ModuleWriter {
             inset--;
             newline( output );
         }
-        output.append( "))" );
+        output.append( ")))" );
         inset = oldInset;
         return 0;
     }

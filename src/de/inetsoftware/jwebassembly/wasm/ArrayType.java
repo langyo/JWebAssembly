@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 - 2022 Volker Berlin (i-net software)
+ * Copyright 2019 - 2026 Volker Berlin (i-net software)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -78,7 +78,7 @@ public class ArrayType extends StructType {
      *            the type of the array
      */
     private ArrayType( @Nonnull String name, @Nonnull StructTypeKind kind, @Nonnull TypeManager manager, @Nonnull AnyType arrayType ) {
-        super( name, kind, manager );
+        super( name, kind, manager, manager.valueOf( "java/lang/Object" ) );
         this.arrayType = arrayType;
     }
 

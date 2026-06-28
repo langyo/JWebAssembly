@@ -300,7 +300,7 @@ public class TypeManager {
 
         if( structTypes.size() == 0 ) {
             for( String primitiveTypeName : PRIMITIVE_CLASSES ) {
-                structTypes.put( primitiveTypeName, new StructType( primitiveTypeName, StructTypeKind.primitive, this ) );
+                structTypes.put( primitiveTypeName, new StructType( primitiveTypeName, StructTypeKind.primitive, this, null ) );
             }
         }
     }
@@ -326,13 +326,14 @@ public class TypeManager {
                 } catch( IOException ex ) {
                     throw new UncheckedIOException( ex );
                 }
+                StructType parent = null;
                 if( classFile != null ) {
                     ConstantClass superClass = classFile.getSuperClass();
                     if( superClass != null ) {
-                        valueOf( superClass.getName() );
+                        parent = valueOf( superClass.getName() );
                     }
                 }
-                type = new StructType( name, StructTypeKind.normal, this );
+                type = new StructType( name, StructTypeKind.normal, this, parent );
             }
 
             structTypes.put( name, type );
@@ -650,6 +651,8 @@ public class TypeManager {
          */
         private int                                 vtableOffset;
 
+        private StructType parent;
+
         /**
          * Create a reference to type
          * 
@@ -660,10 +663,11 @@ public class TypeManager {
          * @param manager
          *            the manager which hold all StructTypes
          */
-        protected StructType( @Nonnull String name, @Nonnull StructTypeKind kind, @Nonnull TypeManager manager ) {
+        protected StructType( @Nonnull String name, @Nonnull StructTypeKind kind, @Nonnull TypeManager manager, StructType parent ) {
             this.name = name;
             this.kind = kind;
             this.manager = manager;
+            this.parent = parent;
             switch( kind ) {
                 case array_native:
                     this.classIndex = -1;
@@ -671,9 +675,7 @@ public class TypeManager {
                 default:
                     this.classIndex = manager.typeIndexCounter++;
             }
-            if( manager.moduleWriter != null && kind != StructTypeKind.primitive ) {
-                code = manager.moduleWriter.createStructTypeCode( this );
-            }
+            code = manager.moduleWriter.createStructTypeCode( this );
         }
 
         /**
@@ -1078,6 +1080,15 @@ public class TypeManager {
         }
 
         /**
+         * Get the parent type if any
+         * 
+         * @return the parent
+         */
+        public StructType getParent() {
+            return parent;
+        }
+
+        /**
          * Get kind of the StructType
          * 
          * @return the type kind
@@ -1268,7 +1279,7 @@ public class TypeManager {
          *            the line number in the Java source code
          */
         LambdaType( @Nonnull String name, @Nonnull BootstrapMethod method, ArrayList<AnyType> params, StructType interfaceType, FunctionName syntheticLambdaFunctionName, String interfaceMethodName, @Nonnull TypeManager manager, int lineNumber ) {
-            super( name, StructTypeKind.lambda, manager );
+            super( name, StructTypeKind.lambda, manager, manager.valueOf( "java/lang/Object" ) );
             this.paramFields = new ArrayList<>( params.size() );
             for( int i = 0; i < params.size(); i++ ) {
                 paramFields.add( new NamedStorageType( params.get( i ), "", "arg$" + (i + 1) ) );

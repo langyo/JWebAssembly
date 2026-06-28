@@ -46,7 +46,7 @@ class StructTypeEntry extends TypeEntry {
      */
     @Override
     ValueType getTypeForm() {
-        return ValueType.struct;
+        return ValueType.sub; // it really ValueType.struct but the sub is prefix
     }
 
     /**
@@ -54,6 +54,14 @@ class StructTypeEntry extends TypeEntry {
      */
     @Override
     void writeSectionEntryDetails( WasmOutputStream stream ) throws IOException {
+        StructType parentType = type.getParent();
+        if( parentType != null ) {
+            stream.writeVarint( 1 ); // one supertype
+            stream.writeVaruint32( parentType.getCode() );
+        } else {
+            stream.writeVarint( 0 ); // no supertype
+        }
+        stream.writeValueType( ValueType.struct );
         List<NamedStorageType> fields = type.getFields();
         stream.writeVaruint32( fields.size() );
         for( NamedStorageType field : fields ) {
