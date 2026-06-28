@@ -1381,15 +1381,6 @@ public class BinaryModuleWriter extends ModuleWriter implements InstructionOpcod
             case RETHROW:
                 codeStream.writeOpCode( RETHROW );
                 break;
-            case BR_ON_EXN:
-                if( options.useEH() ) {
-                    codeStream.writeOpCode( BR_ON_EXN );
-                    codeStream.writeVaruint32( (Integer)data ); // break depth
-                    codeStream.writeVaruint32( 0 );             // tag/exception ever 0 because currently there is only one with signature anyref
-                } else {
-                    codeStream.writeOpCode( UNREACHABLE );
-                }
-                break;
             case MONITOR_ENTER:
             case MONITOR_EXIT:
                 codeStream.writeOpCode( DROP );
@@ -1457,7 +1448,7 @@ public class BinaryModuleWriter extends ModuleWriter implements InstructionOpcod
                 type = options.useGC() ? type : ValueType.externref;
                 break;
             case CAST:
-                codeStream.writeOpCode( REF_CAST );
+                codeStream.writeOpCode( REF_NULL_CAST );
 //                codeStream.writeValueType( options.types.valueOf( "java/lang/Object" ) );
 //                codeStream.writeValueType( type );
                 return;

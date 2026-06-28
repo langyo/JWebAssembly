@@ -873,9 +873,6 @@ public class TextModuleWriter extends ModuleWriter {
             case RETHROW:
                 name = "rethrow";
                 break;
-            case BR_ON_EXN:
-                name = options.useEH() ? "br_on_exn " + data + " 0" : "unreachable"; // br_on_exn, break depth, tag; // currently there is only one tag/exception with externref
-                break;
             case MONITOR_ENTER:
             case MONITOR_EXIT:
                 name = "drop";

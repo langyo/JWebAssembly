@@ -29,7 +29,7 @@ interface InstructionOpcodes {
 
     static final int NOP       = 0x01;
 
-    // === Control flow operators ====
+    // === Control flow operators ==== https://webassembly.github.io/spec/core/binary/instructions.html#control-instructions
 
     static final int BLOCK     = 0x02;
 
@@ -53,7 +53,7 @@ interface InstructionOpcodes {
 
     static final int RETHROW             = 0x09;
 
-    static final int BR_ON_EXN           = 0x0A;
+    static final int THROW_REF           = 0x0A;
 
     static final int END       = 0x0B;
 
@@ -91,17 +91,14 @@ interface InstructionOpcodes {
     /** tail calling a function through a ref */
     static final int RETURN_CALL_REF      = 0x15;
 
-    /** create a closure */
-    static final int FUNC_BIND            = 0x16;
-
-    /** locals with block scope, in order to handle reference types without default initialisation values */
-    static final int LET                  = 0x17;
-
     static final int DELEGATE             = 0x18;
 
     static final int CATCH_ALL            = 0x19;
 
     static final int DROP      = 0x1A;
+
+    /** converts a nullable reference to a non-nullable one or branches if null */
+    static final int BR_ON_NULL             = 0xD5;
 
     /**
      * select one of two values based on condition
@@ -166,11 +163,11 @@ interface InstructionOpcodes {
 
     static final int I32_STORE16       = 0x3B;
 
-    static final int I54_STORE8        = 0x3C;
+    static final int I64_STORE8        = 0x3C;
 
-    static final int I54_STORE16       = 0x3D;
+    static final int I64_STORE16       = 0x3D;
 
-    static final int I54_STORE32       = 0x3E;
+    static final int I64_STORE32       = 0x3E;
 
     static final int MEMORY_SIZE       = 0x3F;
 
@@ -451,21 +448,20 @@ interface InstructionOpcodes {
 
     static final int I64_EXTEND32_S         = 0xC4;
 
-    // === ref values ====== https://github.com/WebAssembly/design/issues/1203
+    // === ref values ====== https://webassembly.github.io/spec/core/binary/instructions.html#reference-instructions
 
     static final int REF_NULL               = 0xD0;
 
     static final int REF_ISNULL             = 0xD1;
 
+    static final int REF_EQ                 = 0xD3;
+
     /** converts a nullable reference to a non-nullable one or traps if null */
-    static final int REF_AS_NON_NULL        = 0xD3;
+    static final int REF_AS_NON_NULL        = 0xD4;
 
-    /** converts a nullable reference to a non-nullable one or branches if null */
-    static final int BR_ON_NULL             = 0xD4;
+    static final int REF_CAST               = 0xFB16;
 
-    static final int REF_EQ                 = 0xD5;
-
-    static final int REF_CAST               = 0xFB17;
+    static final int REF_NULL_CAST          = 0xFB17;
 
     // === Non-trapping float-to-int conversions ====== https://github.com/WebAssembly/design/issues/1143
 

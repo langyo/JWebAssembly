@@ -39,7 +39,6 @@ public enum WasmBlockOperator {
     CATCH,
     THROW,
     RETHROW,
-    BR_ON_EXN,
     MONITOR_ENTER,
     MONITOR_EXIT,
 }
