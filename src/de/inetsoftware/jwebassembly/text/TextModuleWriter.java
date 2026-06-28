@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2022 Volker Berlin (i-net software)
+ * Copyright 2017 - 2026 Volker Berlin (i-net software)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -930,8 +930,8 @@ public class TextModuleWriter extends ModuleWriter {
             case LEN:
                 operation = "len";
                 break;
-            case NEW_ARRAY_WITH_RTT:
-                operation = "new_default_with_rtt";
+            case NEW_ARRAY:
+                operation = "new_default";
                 break;
             default:
                 throw new Error( "Unknown operator: " + op );
@@ -950,8 +950,7 @@ public class TextModuleWriter extends ModuleWriter {
             case NEW:
             case NEW_DEFAULT:
                 newline( methodOutput );
-                methodOutput.append( "rtt.canon" ).append( ' ' ).append( normalizeName( type.toString() ) );
-                operation = "struct.new_default_with_rtt";
+                operation = "struct.new_default";
                 break;
             case GET:
                 operation = "struct.get";
@@ -966,12 +965,6 @@ public class TextModuleWriter extends ModuleWriter {
                     operation = "ref.null extern";
                     type = null;
                 }
-                break;
-            case RTT_CANON:
-                operation = "rtt.canon";
-                break;
-            case NEW_WITH_RTT:
-                operation = "struct.new_with_rtt";
                 break;
             case CAST:
                 operation = "ref.cast";

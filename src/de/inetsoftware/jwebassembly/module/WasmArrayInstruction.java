@@ -1,5 +1,5 @@
 /*
-   Copyright 2018 - 2022 Volker Berlin (i-net software)
+   Copyright 2018 - 2026 Volker Berlin (i-net software)
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -85,10 +85,8 @@ class WasmArrayInstruction extends WasmInstruction {
                             String nativeArrayTypeName = ((ArrayType)arrayType.getNativeArrayType()).getName();
                             return "i32.const " + arrayType.getVTable() + " i32.const 0" // hashcode
                                             + " local.get 0" // array size
-                                            + " rtt.canon " + nativeArrayTypeName //
-                                            + " array.new_default_with_rtt " + nativeArrayTypeName //
-                                            + " rtt.canon " + arrayType.getName() //
-                                            + " struct.new_with_rtt " + arrayType.getName() //
+                                            + " array.new_default " + nativeArrayTypeName //
+                                            + " struct.new " + arrayType.getName() //
                                             + " return";
                         }
                     };
@@ -192,7 +190,7 @@ class WasmArrayInstruction extends WasmInstruction {
     AnyType getPushValueType() {
         switch( op ) {
             case NEW:
-            case NEW_ARRAY_WITH_RTT:
+            case NEW_ARRAY:
                 return arrayType;
             case GET:
                 return type;
@@ -220,7 +218,7 @@ class WasmArrayInstruction extends WasmInstruction {
             case GET:
             case GET_S:
             case GET_U:
-            case NEW_ARRAY_WITH_RTT:
+            case NEW_ARRAY:
                 return 2;
             case NEW:
             case LEN:
@@ -242,7 +240,7 @@ class WasmArrayInstruction extends WasmInstruction {
             case GET_S:
             case GET_U:
                 return new AnyType[] { arrayType, ValueType.i32 };
-            case NEW_ARRAY_WITH_RTT:
+            case NEW_ARRAY:
                 return new AnyType[] { ValueType.i32, ValueType.i32 }; // size, rtt type
             case NEW:
                 return new AnyType[] { ValueType.i32 };

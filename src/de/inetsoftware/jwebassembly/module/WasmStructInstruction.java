@@ -1,5 +1,5 @@
 /*
-   Copyright 2018 - 2022 Volker Berlin (i-net software)
+   Copyright 2018 - 2026 Volker Berlin (i-net software)
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -243,7 +243,6 @@ class WasmStructInstruction extends WasmInstruction {
             }
             writer.writeFunctionCall( functionName, comment );
             if( op == StructOperator.CAST && options.useGC() ) {
-                writer.writeStructOperator( StructOperator.RTT_CANON, type, null, -1 );
                 writer.writeStructOperator( op, type, null, -1 );
             }
         } else {
@@ -262,7 +261,6 @@ class WasmStructInstruction extends WasmInstruction {
             case NEW:
             case NEW_DEFAULT:
             case CAST:
-            case NEW_WITH_RTT:
                 return type;
             case GET:
                 return fieldName.getType();
@@ -270,8 +268,6 @@ class WasmStructInstruction extends WasmInstruction {
                 return null;
             case INSTANCEOF:
                 return ValueType.i32; // a boolean value
-            case RTT_CANON:
-                return ValueType.i32; // rtt type
             default:
                 throw new WasmException( "Unknown array operation: " + op, -1 );
         }
@@ -286,14 +282,12 @@ class WasmStructInstruction extends WasmInstruction {
             case GET:
             case INSTANCEOF:
             case CAST:
-            case NEW_WITH_RTT:
                 return 1;
             case SET:
                 return 2;
             case NEW:
             case NEW_DEFAULT:
             case NULL:
-            case RTT_CANON:
                 return 0;
             default:
                 throw new WasmException( "Unknown array operation: " + op, -1 );
@@ -311,14 +305,11 @@ class WasmStructInstruction extends WasmInstruction {
             case INSTANCEOF:
             case CAST:
                 return new AnyType[] { options.types.valueOf( "java/lang/Object" ) };
-            case NEW_WITH_RTT:
-                return new AnyType[] { ValueType.i32 };// rtt type
             case SET:
                 return new AnyType[] { type, fieldName.getType() };
             case NEW:
             case NEW_DEFAULT:
             case NULL:
-            case RTT_CANON:
                 return null;
             default:
                 throw new WasmException( "Unknown array operation: " + op, -1 );

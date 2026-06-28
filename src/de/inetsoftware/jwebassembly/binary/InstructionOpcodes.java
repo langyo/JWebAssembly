@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2022 Volker Berlin (i-net software)
+ * Copyright 2017 - 2026 Volker Berlin (i-net software)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -465,6 +465,8 @@ interface InstructionOpcodes {
 
     static final int REF_EQ                 = 0xD5;
 
+    static final int REF_CAST               = 0xFB17;
+
     // === Non-trapping float-to-int conversions ====== https://github.com/WebAssembly/design/issues/1143
 
     static final int I32_TRUNC_SAT_F32_S    = 0xFC00;
@@ -483,7 +485,7 @@ interface InstructionOpcodes {
 
     static final int I64_TRUNC_SAT_F64_U    = 0xFC07;
 
-    // === table opcodes ===== https://webassembly.github.io/reference-types/core/binary/instructions.html#table-instructions
+    // === table opcodes ===== https://webassembly.github.io/spec/core/binary/instructions.html#table-instructions
 
     static final int TABLE_GROW             = 0xFC0F;
 
@@ -491,32 +493,57 @@ interface InstructionOpcodes {
 
     static final int TABLE_FILL             = 0xFC11;
 
-    // === GC opcodes
+    // === GC opcodes ===== https://webassembly.github.io/spec/core/binary/instructions.html#aggregate-instructions
 
-    static final int STRUCT_NEW             = 0xFB01;
+    static final int STRUCT_NEW             = 0xFB00;
 
-    static final int STRUCT_NEW_DEFAULT     = 0xFB02;
+    static final int STRUCT_NEW_DEFAULT     = 0xFB01;
 
-    static final int STRUCT_GET             = 0xFB03;
+    static final int STRUCT_GET             = 0xFB02;
 
-    static final int STRUCT_SET             = 0xFB06;
+    static final int STRUCT_GET_S           = 0xFB03;
+
+    static final int STRUCT_GET_U           = 0xFB04;
+
+    static final int STRUCT_SET             = 0xFB05;
 
 
-    static final int ARRAY_NEW              = 0xFB11;
 
-    static final int ARRAY_NEW_DEFAULT      = 0xFB12;
+    static final int ARRAY_NEW              = 0xFB06;
 
-    static final int ARRAY_GET              = 0xFB13;
+    static final int ARRAY_NEW_DEFAULT      = 0xFB07;
 
-    static final int ARRAY_GET_S            = 0xFB14;
+    static final int ARRAY_NEW_FIXED        = 0xFB08;
 
-    static final int ARRAY_GET_U            = 0xFB15;
+    static final int ARRAY_NEW_DATA         = 0xFB09;
 
-    static final int ARRAY_SET              = 0xFB16;
+    static final int ARRAY_NEW_ELEM         = 0xFB0A;
 
-    static final int ARRAY_LEN              = 0xFB17;
+    static final int ARRAY_GET              = 0xFB0B;
 
-    static final int RTT_CANON              = 0xFB30;
+    static final int ARRAY_GET_S            = 0xFB0C;
 
-    static final int REF_CAST               = 0xFB41;
+    static final int ARRAY_GET_U            = 0xFB0D;
+
+    static final int ARRAY_SET              = 0xFB0E;
+
+    static final int ARRAY_LEN              = 0xFB0F;
+
+    static final int ARRAY_FILL             = 0xFB10;
+
+    static final int ARRAY_COPY             = 0xFB11;
+
+    static final int ARRAY_INIT_DATA        = 0xFB12;
+
+    static final int ARRAY_INIT_ELEM        = 0xFB13;
+
+    static final int ANY_CONVERT_EXTERN     = 0xFB1A;
+
+    static final int EXTERN_CONVERT_ANY     = 0xFB1B;
+
+    static final int REF_I31                = 0xFB1C;
+
+    static final int I32_GET_S              = 0xFB1D;
+
+    static final int I31_GET_U              = 0xFB1E;
 }

@@ -1392,7 +1392,6 @@ public class BinaryModuleWriter extends ModuleWriter implements InstructionOpcod
         int opCode;
         switch(op) {
             case NEW:
-                codeStream.writeOpCode( RTT_CANON );
                 codeStream.writeValueType( type.getNativeArrayType() );
                 opCode = ARRAY_NEW_DEFAULT;
                 break;
@@ -1411,7 +1410,7 @@ public class BinaryModuleWriter extends ModuleWriter implements InstructionOpcod
             case LEN:
                 opCode = ARRAY_LEN;
                 break;
-            case NEW_ARRAY_WITH_RTT:
+            case NEW_ARRAY:
                 opCode = ARRAY_NEW_DEFAULT;
                 break;
             default:
@@ -1430,7 +1429,6 @@ public class BinaryModuleWriter extends ModuleWriter implements InstructionOpcod
         switch(op) {
             case NEW:
             case NEW_DEFAULT:
-                codeStream.writeOpCode( RTT_CANON );
                 codeStream.writeValueType( type );
                 opCode = STRUCT_NEW_DEFAULT;
                 break;
@@ -1443,12 +1441,6 @@ public class BinaryModuleWriter extends ModuleWriter implements InstructionOpcod
             case NULL:
                 opCode = REF_NULL;
                 type = options.useGC() ? type : ValueType.externref;
-                break;
-            case RTT_CANON:
-                opCode = RTT_CANON;
-                break;
-            case NEW_WITH_RTT:
-                opCode = STRUCT_NEW;
                 break;
             case CAST:
                 codeStream.writeOpCode( REF_CAST );
