@@ -199,6 +199,14 @@ public class TextModuleWriter extends ModuleWriter {
      * {@inheritDoc}
      */
     @Override
+    protected int createStructTypeCode( StructType type ) {
+        return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     protected int writeStructType( StructType type ) throws IOException {
         type.writeToStream( dataStream, (funcName) -> getFunction( funcName ).id, options );
 

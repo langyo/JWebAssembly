@@ -1,5 +1,5 @@
 /*
-   Copyright 2018 - 2023 Volker Berlin (i-net software)
+   Copyright 2018 - 2026 Volker Berlin (i-net software)
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -178,6 +178,8 @@ public class TypeManager {
 
     private ClassFileLoader                 classFileLoader;
 
+    private ModuleWriter                    moduleWriter;
+
     /**
      * Initialize the type manager.
      * 
@@ -193,9 +195,12 @@ public class TypeManager {
      * 
      * @param classFileLoader
      *            for loading the class files
+     * @param moduleWriter
+     *            the module writer
      */
-    void init( ClassFileLoader classFileLoader ) {
+    void init( @Nonnull ClassFileLoader classFileLoader, @Nonnull ModuleWriter moduleWriter ) {
         this.classFileLoader = classFileLoader;
+        this.moduleWriter = moduleWriter;
     }
 
     /**
@@ -315,6 +320,18 @@ public class TypeManager {
                 return (StructType)new ValueTypeParser( name, options.types ).next();
             } else {
                 checkStructTypesState( name );
+                ClassFile classFile;
+                try {
+                    classFile = classFileLoader.get( name );
+                } catch( IOException ex ) {
+                    throw new UncheckedIOException( ex );
+                }
+                if( classFile != null ) {
+                    ConstantClass superClass = classFile.getSuperClass();
+                    if( superClass != null ) {
+                        valueOf( superClass.getName() );
+                    }
+                }
                 type = new StructType( name, StructTypeKind.normal, this );
             }
 
@@ -653,6 +670,9 @@ public class TypeManager {
                     break;
                 default:
                     this.classIndex = manager.typeIndexCounter++;
+            }
+            if( manager.moduleWriter != null && kind != StructTypeKind.primitive ) {
+                code = manager.moduleWriter.createStructTypeCode( this );
             }
         }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 - 2022 Volker Berlin (i-net software)
+ * Copyright 2021 - 2026 Volker Berlin (i-net software)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.util.HashMap;
 
 import org.junit.Before;
@@ -32,6 +33,7 @@ import de.inetsoftware.jwebassembly.JWebAssembly;
 import de.inetsoftware.jwebassembly.module.TypeManager.LambdaType;
 import de.inetsoftware.jwebassembly.module.TypeManager.StructType;
 import de.inetsoftware.jwebassembly.module.TypeManager.StructTypeKind;
+import de.inetsoftware.jwebassembly.text.TextModuleWriter;
 
 /**
  * @author Volker Berlin
@@ -41,12 +43,12 @@ public class StructTypeTest {
     private TypeManager manager;
 
     @Before
-    public void before() {
+    public void before() throws IOException {
         HashMap<String, String> properties = new HashMap<>();
         properties.put( JWebAssembly.WASM_USE_GC, "true" );
         WasmOptions options = new WasmOptions( properties );
         manager = options.types;
-        manager.init( new ClassFileLoader( getClass().getClassLoader() ) );
+        manager.init( new ClassFileLoader( getClass().getClassLoader() ), new TextModuleWriter( new WasmTarget( new StringBuilder() ), options ) );
     }
 
     @Test

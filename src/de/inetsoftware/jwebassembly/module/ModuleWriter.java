@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2021 Volker Berlin (i-net software)
+ * Copyright 2017 - 2026 Volker Berlin (i-net software)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,6 +69,15 @@ public abstract class ModuleWriter implements Closeable {
      * first method.
      */
     protected abstract void prepareFinish();
+
+    /**
+     * Reserve a type ID for a struct type. Must be called before writeStructType.
+     * 
+     * @param type
+     *            the type to declare/write
+     * @return type ID
+     */
+    protected abstract int createStructTypeCode( @Nonnull StructType type );
 
     /**
      * Write a type/struct.

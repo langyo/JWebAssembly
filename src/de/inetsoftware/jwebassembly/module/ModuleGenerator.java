@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2022 Volker Berlin (i-net software)
+ * Copyright 2017 - 2026 Volker Berlin (i-net software)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,6 +63,7 @@ public class ModuleGenerator {
 
     private final JavaScriptWriter          javaScript;
 
+    @Nonnull
     private final ClassFileLoader           classFileLoader;
 
     private final JavaMethodWasmCodeBuilder javaCodeBuilder;
@@ -110,7 +111,7 @@ public class ModuleGenerator {
         optimizer = options.optimizer;
         javaCodeBuilder.init( options, classFileLoader );
         ((WasmCodeBuilder)watParser).init( options, classFileLoader );
-        types.init( classFileLoader );
+        types.init( classFileLoader, writer );
         staticCodeBuilder = new StaticCodeBuilder( writer.options, classFileLoader, javaCodeBuilder );
 
         scanLibraries( libraries );

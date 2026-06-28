@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 - 2022 Volker Berlin (i-net software)
+ * Copyright 2017 - 2026 Volker Berlin (i-net software)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -500,6 +500,24 @@ public class BinaryModuleWriter extends ModuleWriter implements InstructionOpcod
      * {@inheritDoc}
      */
     @Override
+    protected int createStructTypeCode( StructType type ) {
+        if( type.getKind() == StructTypeKind.primitive ) {
+            return -9; // Should never use
+        }
+
+        if( !options.useGC() ) {
+            return ValueType.externref.getCode();
+        }
+
+        int typeId = functionTypes.size();
+        functionTypes.add( type.getKind() == StructTypeKind.array_native ? new ArrayTypeEntry( type ) : new StructTypeEntry( type ) );
+        return typeId;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     protected int writeStructType( StructType type ) throws IOException {
         type.writeToStream( dataStream, (funcName) -> getFunction( funcName ).id, options );
 
@@ -520,10 +538,7 @@ public class BinaryModuleWriter extends ModuleWriter implements InstructionOpcod
                 break;
         }
 
-        int typeId = functionTypes.size();
-        List<NamedStorageType> fields = type.getFields();
-        functionTypes.add( type.getKind() == StructTypeKind.array_native ? new ArrayTypeEntry( fields ) : new StructTypeEntry( fields ) );
-        return typeId;
+        return type.getCode();
     }
 
     /**

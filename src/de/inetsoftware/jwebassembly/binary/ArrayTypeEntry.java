@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Volker Berlin (i-net software)
+ * Copyright 2021 - 2026 Volker Berlin (i-net software)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,12 +12,13 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+*/
 package de.inetsoftware.jwebassembly.binary;
 
 import java.io.IOException;
 import java.util.List;
 
+import de.inetsoftware.jwebassembly.module.TypeManager.StructType;
 import de.inetsoftware.jwebassembly.wasm.NamedStorageType;
 import de.inetsoftware.jwebassembly.wasm.ValueType;
 
@@ -28,16 +29,16 @@ import de.inetsoftware.jwebassembly.wasm.ValueType;
  */
 class ArrayTypeEntry extends TypeEntry {
 
-    private final NamedStorageType field;
+    private final StructType type;
 
     /**
      * Create a new instance.
      * 
-     * @param fields
-     *            the fields of the array
+     * @param type
+     *            the array struct type
      */
-    ArrayTypeEntry( List<NamedStorageType> fields ) {
-        this.field = fields.get( 0 );
+    ArrayTypeEntry( StructType type ) {
+        this.type = type;
     }
 
     /**
@@ -53,7 +54,8 @@ class ArrayTypeEntry extends TypeEntry {
      */
     @Override
     void writeSectionEntryDetails( WasmOutputStream stream ) throws IOException {
-        stream.writeRefValueType( field.getType() );
+        List<NamedStorageType> fields = type.getFields();
+        stream.writeRefValueType( fields.get( 0 ).getType() );
         stream.writeVarint( 1 ); // 0 - immutable; 1 - mutable 
     }
 
@@ -62,7 +64,8 @@ class ArrayTypeEntry extends TypeEntry {
      */
     @Override
     public int hashCode() {
-        return field.hashCode();
+        List<NamedStorageType> fields = type.getFields();
+        return fields != null ? fields.get( 0 ).hashCode() : 0;
     }
 
     /**
@@ -76,7 +79,12 @@ class ArrayTypeEntry extends TypeEntry {
         if( obj == null || obj.getClass() != getClass() ) {
             return false;
         }
-        ArrayTypeEntry entry = (ArrayTypeEntry)obj;
-        return field.equals( entry.field );
+        ArrayTypeEntry other = (ArrayTypeEntry)obj;
+        List<NamedStorageType> fields = type.getFields();
+        List<NamedStorageType> otherFields = other.type.getFields();
+        if( fields == null ) {
+            return otherFields == null;
+        }
+        return fields.get( 0 ).equals( otherFields.get( 0 ) );
     }
 }
