@@ -1444,7 +1444,6 @@ public class BinaryModuleWriter extends ModuleWriter implements InstructionOpcod
         switch(op) {
             case NEW:
             case NEW_DEFAULT:
-                codeStream.writeValueType( type );
                 opCode = STRUCT_NEW_DEFAULT;
                 break;
             case GET:
