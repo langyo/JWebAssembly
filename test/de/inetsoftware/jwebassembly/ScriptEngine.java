@@ -83,7 +83,7 @@ public enum ScriptEngine {
                         NodeJS, //
                         // NodeWat, // disabled because https://github.com/AssemblyScript/wabt.js/issues/26
                         SpiderMonkeyWat,//
-                        Wat2Wasm, //
+                        //Wat2Wasm, // disable because GC is not implemented with the finalize spec
         };
         return val;
     }
